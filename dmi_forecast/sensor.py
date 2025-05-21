@@ -38,12 +38,12 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     wind_coordinator = DmiWindDataCoordinator(
         hass, session, api_key, latitude, longitude
     )
-    await wind_coordinator.async_config_entry_first_refresh()
+    await wind_coordinator.async_refresh()
 
     water_coordinator = DmiWaterLevelDataCoordinator(
         hass, session, api_key, latitude, longitude
     )
-    await water_coordinator.async_config_entry_first_refresh()
+    await water_coordinator.async_refresh()
 
     sensors = [
         DmiWaterLevelSensor(name, water_coordinator),
@@ -180,4 +180,3 @@ class DmiWindDirSensor(SensorEntity):
 
     async def async_update(self):
         await self._coordinator.async_request_refresh()
-        
