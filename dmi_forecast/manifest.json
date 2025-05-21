@@ -1,0 +1,9 @@
+{
+    "domain": "dmi_forecast",
+    "name": "DMI Forecast",
+    "version": "0.1.0",
+    "documentation": "https://github.com/allancph/node-red-DMI-API-forecast",
+    "requirements": [],
+    "dependencies": [],
+    "codeowners": ["@allancph"]
+  }

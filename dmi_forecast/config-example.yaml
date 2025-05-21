@@ -1,0 +1,6 @@
+sensor:
+  - platform: dmi_forecast
+    api_key: "xxxxxxx"
+    latitude: 56.0000
+    longitude: 12.0000
+    name: "DMI Forecast"
