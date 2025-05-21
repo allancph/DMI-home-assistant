@@ -78,14 +78,26 @@ class DmiWaterLevelDataCoordinator(DataUpdateCoordinator):
                 resp.raise_for_status()
                 data = await resp.json()
                 features = data.get("features", [])
+                forecast = []
+                for f in features:
+                    prop = f["properties"]
+                    forecast.append({
+                        "datetime": prop.get("step"),
+                        "value": prop.get("sea-mean-deviation"),
+                    })
+                # Use the first feature as "current", rest as forecast
                 if features:
                     prop = features[0]["properties"]
-                    return {
+                    current = {
                         "sea-mean-deviation": prop.get("sea-mean-deviation"),
                         "step": prop.get("step"),
                     }
                 else:
-                    return {}
+                    current = {}
+                return {
+                    **current,
+                    "forecast": forecast
+                }
         except Exception as e:
             raise UpdateFailed(f"Error fetching DMI Water Level data: {e}")
 
@@ -115,15 +127,33 @@ class DmiWindDataCoordinator(DataUpdateCoordinator):
                 resp.raise_for_status()
                 data = await resp.json()
                 features = data.get("features", [])
+                windspeed_forecast = []
+                winddir_forecast = []
+                for f in features:
+                    prop = f["properties"]
+                    windspeed_forecast.append({
+                        "datetime": prop.get("step"),
+                        "value": prop.get("wind-speed"),
+                    })
+                    winddir_forecast.append({
+                        "datetime": prop.get("step"),
+                        "value": prop.get("wind-dir"),
+                    })
+                # Use the first feature as "current", rest as forecast
                 if features:
                     prop = features[0]["properties"]
-                    return {
+                    current = {
                         "wind-speed": prop.get("wind-speed"),
                         "wind-dir": prop.get("wind-dir"),
                         "step": prop.get("step"),
                     }
                 else:
-                    return {}
+                    current = {}
+                return {
+                    **current,
+                    "windspeed_forecast": windspeed_forecast,
+                    "winddir_forecast": winddir_forecast,
+                }
         except Exception as e:
             raise UpdateFailed(f"Error fetching DMI Wind data: {e}")
 
@@ -140,7 +170,11 @@ class DmiWaterLevelSensor(SensorEntity):
 
     @property
     def extra_state_attributes(self):
-        return {"step": self._coordinator.data.get("step")} if self._coordinator.data else {}
+        attrs = {}
+        if self._coordinator.data:
+            attrs["step"] = self._coordinator.data.get("step")
+            attrs["forecast"] = self._coordinator.data.get("forecast", [])
+        return attrs
 
     async def async_update(self):
         await self._coordinator.async_request_refresh()
@@ -158,7 +192,11 @@ class DmiWindSpeedSensor(SensorEntity):
 
     @property
     def extra_state_attributes(self):
-        return {"step": self._coordinator.data.get("step")} if self._coordinator.data else {}
+        attrs = {}
+        if self._coordinator.data:
+            attrs["step"] = self._coordinator.data.get("step")
+            attrs["forecast"] = self._coordinator.data.get("windspeed_forecast", [])
+        return attrs
 
     async def async_update(self):
         await self._coordinator.async_request_refresh()
@@ -176,7 +214,11 @@ class DmiWindDirSensor(SensorEntity):
 
     @property
     def extra_state_attributes(self):
-        return {"step": self._coordinator.data.get("step")} if self._coordinator.data else {}
+        attrs = {}
+        if self._coordinator.data:
+            attrs["step"] = self._coordinator.data.get("step")
+            attrs["forecast"] = self._coordinator.data.get("winddir_forecast", [])
+        return attrs
 
     async def async_update(self):
         await self._coordinator.async_request_refresh()
