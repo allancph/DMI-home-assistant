@@ -1,1 +1,76 @@
+type: custom:apexcharts-card
+header:
+  title: DMI Water Level Forecast
+  show: true
+graph_span: 5d
+span:
+  start: day
+series:
+  - entity: sensor.dmi_forecast_water_level
+    type: line
+    name: Water Level
+    unit: cm
+    show:
+      in_header: false
+    data_generator: |
+      if (!entity.attributes.forecast) return [];
+      return entity.attributes.forecast.map(f => [
+        new Date(f.datetime).getTime(),
+        f.value
+      ]);
+yaxis:
+  - decimals: 1
+
+>>>>>>>>>>>>>>>>>>>>
+
+
+type: custom:apexcharts-card
+header:
+  title: DMI Wind Speed Forecast
+  show: true
+graph_span: 5d
+span:
+  start: day
+series:
+  - entity: sensor.dmi_forecast_wind_speed
+    type: line
+    name: Wind Speed
+    unit: m/s
+    show:
+      in_header: false
+    data_generator: |
+      return entity.attributes.forecast.map(f => {
+        return [new Date(f.datetime).getTime(), f.value];
+      });
+yaxis:
+  - min: 0
+    decimals: 1
+
+>>>>>>>>>>>>
+
+
+type: custom:apexcharts-card
+header:
+  title: DMI Wind Direction Forecast
+  show: true
+graph_span: 5d
+span:
+  start: day
+series:
+  - entity: sensor.dmi_forecast_wind_direction
+    type: line
+    name: Wind Direction
+    unit: °
+    show:
+      in_header: false
+    data_generator: |
+      if (!entity.attributes.forecast) return [];
+      return entity.attributes.forecast.map(f => [
+        new Date(f.datetime).getTime(),
+        f.value
+      ]);
+yaxis:
+  - min: 0
+    max: 360
+    decimals: 0
 
